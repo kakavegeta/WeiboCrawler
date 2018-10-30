@@ -147,7 +147,7 @@ class Client:
         self.session = session
         return session
 
-    def GetUserTweets(self, uid, curtweets, params):
+    def GetUserTweets(self, uid, params):
         self.SwitchAccount()
         url = 'https://weibo.cn/{}/profile?{}'.format(uid,params)
         r = self.session.get(url)
@@ -161,13 +161,15 @@ class Client:
                 continue
             tweets = {}
             subdivs = div.find_all('div')
-            if len(subdivs) not in [1,2,4]:
+            if len(subdivs) not in [1,2,3]:
                 continue
             tweets['uid'] = uid
             tweets['reason'] = ""
             tweets['content'] = div.find('span',{'class':'ctt'}).get_text(strip=True).replace('\u200b','')
+            print(div)
             #_text contains the tweet posted time and the source where it comes from
-            _text = div.find('span',{'class':'ct'})
+            _text = div.find('span',{'class':'ct'}).get_text(strip=True)
+            print(_text)
             time_text, source = _text.split('\xa0')
             # format the date and time 
             if "今天" in time_text:
@@ -198,6 +200,8 @@ class Client:
                 self.logger.info('unusual condition')
                 pass
             tweetlist.append(tweets)
+        return tweetlist
+    
 
 
             
