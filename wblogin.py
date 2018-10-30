@@ -6,7 +6,10 @@ import re
 import rsa
 import random
 from ZLogger import Logger
-from config import headers, agents, accounts
+from config import headers, agents, accounts, time_p1, time_p2, favor_p, comment_p, repost_p
+from bs4 import BeautifulSoup
+import lxml
+import time
 
 json_pattern = re.compile(r'\(({.*})\)')
 
@@ -143,7 +146,64 @@ class Client:
             login = 1
         self.session = session
         return session
-    
+
+    def GetUserTweets(self, uid, curtweets, params):
+        self.SwitchAccount()
+        url = 'https://weibo.cn/{}/profile?{}'.format(uid,params)
+        r = self.session.get(url)
+        c = r.content
+        soup = BeautifulSoup(c, 'lxml')
+        divs = soup.find_all('div',{'class':'c'})
+        tweetlist = []
+        for div in divs[1:]:
+            #skip the top set weibo
+            if div.find('span',{'class':'kt'}):
+                continue
+            tweets = {}
+            subdivs = div.find_all('div')
+            if len(subdivs) not in [1,2,4]:
+                continue
+            tweets['uid'] = uid
+            tweets['reason'] = ""
+            tweets['content'] = div.find('span',{'class':'ctt'}).get_text(strip=True).replace('\u200b','')
+            #_text contains the tweet posted time and the source where it comes from
+            _text = div.find('span',{'class':'ct'})
+            time_text, source = _text.split('\xa0')
+            # format the date and time 
+            if "今天" in time_text:
+                time_text.replace('今天',time.strftime('%Y-%m-%d',time.localtime(time.time())))
+            elif re.compile(r'\d\d月\d\d日').findall(time_text):
+                time_text.replace('月','-').replace('日','-')
+            tweets['time'] = time_text
+            tweets['source'] = source
+            #_text2 contains favor_count, comment_count, and repost_count
+            _text2 = subdivs[-1].get_text(strip=True)
+            tweets['favor_count'] = favor_p.search(_text2).group(1)
+            tweets['comment_count'] = comment_p.search(_text2).group(1)
+            tweets['repost_count'] = repost_p.search(_text2).group(1)
+            #diversify different conditions: original or repost
+            if len(subdivs) == 1:
+                tweets['type'] = 'original'
+                
+            elif len(subdivs)==2:
+                if div.find_all('span',{'class':'cmt'}):
+                    tweets['type'] = 'repost'
+                    tweets['reason'] = re.findall(r'</span>(.*?)<a', str(subdivs[-1]))[0].replace('\xa0','')
+                else:
+                    tweets['type'] = 'original'
+            elif len(subdivs)==3:
+                tweets['type'] = 'repost'
+                tweets['reason'] = re.findall(r'</span>(.*?)<a', str(subdivs[-1]))[0].replace('\xa0','')
+            else:
+                self.logger.info('unusual condition')
+                pass
+            tweetlist.append(tweets)
+
+
+            
+            
+
+            
             
 
 

@@ -1,7 +1,13 @@
 import json
 import time
 import random
+import re
 
+time_p1 = re.compile(r"\d\d:\d\d") 
+time_p2 = re.compile(r"\d\d\d\d-\d\d-\d\d \d:\d:\d")
+favor_p = re.compile(r"赞\[(\d*)\]")
+comment_p = re.compile(r"评论\[(\d*)\]")
+repost_p = re.compile(r"转发\[(\d*)\]")
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36', 
         'Accept-Encoding': 'gzip, deflate', 
         'Accept': '*/*', 

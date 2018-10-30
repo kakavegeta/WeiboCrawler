@@ -16,6 +16,4 @@ def GetUserInfo(client, uid):
 
 def GetUserTweets(uid):
     pass
-
-
     
