@@ -16,9 +16,9 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
         'Content-Type': 'application/x-www-form-urlencoded'}
 
 
-accounts = ['455075468@qq.com/zhangjie123456',
-        'a455075468@163.com/zhangjie123456',
-        'zhangjie@elements.org.cn/zhangjie123456']
+accounts = ['455075468@qq.com/******',
+        'a455075468@163.com/******',
+        'zhangjie@elements.org.cn/******']
 
 agents = [
     "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.87 Safari/537.36",
