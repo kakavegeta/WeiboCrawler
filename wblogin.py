@@ -75,7 +75,7 @@ class Client:
         self.session = None
         self.headers = headers
         self.state = False # status of current client, False: not login; True: login
-        self.logger = Logger('weibospider.log')
+        self.logger = Logger('weibo_{}.log'.format(time.strftime('%Y%m%d', time.localtime(time.time()))))
     
     def _prelogin(self):
         self.su, self.servertime, self.nonce, self.pubkey, self.rsakv = PreLoginData(self.username)
@@ -148,7 +148,9 @@ class Client:
         return session
 
     def GetUserTweets(self, uid, params):
+        time.sleep(1)
         self.SwitchAccount()
+        time.sleep(1)
         url = 'https://weibo.cn/{}/profile?{}'.format(uid,params)
         r = self.session.get(url)
         c = r.content
@@ -163,21 +165,21 @@ class Client:
             subdivs = div.find_all('div')
             if len(subdivs) not in [1,2,3]:
                 continue
-            tweets['uid'] = uid
+            #tweets['uid'] = uid
             tweets['reason'] = ""
-            tweets['content'] = div.find('span',{'class':'ctt'}).get_text(strip=True).replace('\u200b','')
-            print(div)
+            #tweets['content'] = div.find('span',{'class':'ctt'}).get_text(strip=True).replace('\u200b','')
             #_text contains the tweet posted time and the source where it comes from
             _text = div.find('span',{'class':'ct'}).get_text(strip=True)
-            print(_text)
+            #print(_text)
             time_text, source = _text.split('\xa0')
+            #print(time_text)
             # format the date and time 
             if "今天" in time_text:
-                time_text.replace('今天',time.strftime('%Y-%m-%d',time.localtime(time.time())))
+                tweets['time'] = time_text.replace('今天',time.strftime('%Y-%m-%d',time.localtime(time.time())))
             elif re.compile(r'\d\d月\d\d日').findall(time_text):
-                time_text.replace('月','-').replace('日','-')
-            tweets['time'] = time_text
-            tweets['source'] = source
+                tweets['time'] = time.strftime('%Y', time.localtime(time.time()))+'-'+time_text.replace('月','-').replace('日','')
+            #tweets['time'] = time_text
+            #tweets['source'] = source
             #_text2 contains favor_count, comment_count, and repost_count
             _text2 = subdivs[-1].get_text(strip=True)
             tweets['favor_count'] = favor_p.search(_text2).group(1)
@@ -199,7 +201,7 @@ class Client:
             else:
                 self.logger.info('unusual condition')
                 pass
-            tweetlist.append(tweets)
+            tweetlist.append(list(tweets.values()))
         return tweetlist
     
 
