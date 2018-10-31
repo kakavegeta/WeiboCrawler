@@ -64,7 +64,7 @@ def PostData(username, passwd, pubkey, servertime, nonce, rsakv):
 
 class Client:
 
-    def __init__(self, username='zhangjie@elements.org.cn', passwd = 'zhangjie123456'):
+    def __init__(self, username='zhangjie@elements.org.cn', passwd = '******'):
         self.username = username
         self.passwd = passwd
         self.su = None
